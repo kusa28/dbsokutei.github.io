@@ -1,0 +1,36 @@
+// Web Audio APIの初期化
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const audioContext = new AudioContext();
+
+      // マイクからの音声ストリームの取得
+      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        // 音声ストリームをオーディオソースに接続
+        const source = audioContext.createMediaStreamSource(stream);
+
+        // デシベルメーターの作成
+        const meter = document.getElementById("meter");
+        const meterWidth = meter.offsetWidth;
+        const meterHeight = meter.offsetHeight;
+        const meterBar = document.createElement("div");
+        meterBar.style.width = "100%";
+        meterBar.style.height = "100%";
+        meterBar.style.backgroundColor = "#ddd";
+        meter.appendChild(meterBar);
+
+        // アナライザーの作成
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        source.connect(analyser);
+
+        // デシベルメーターの更新
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        const updateMeter = () => {
+          analyser.getByteFrequencyData(dataArray);
+          const sum = dataArray.reduce((acc, val) => acc + val, 0);
+          const avg = sum / dataArray.length;
+          const db = 20 * Math.log10(avg / 255);
+          meterBar.style.width = `${db + 100}%`;
+          requestAnimationFrame(updateMeter);
+        };
+        updateMeter();
+      });
