@@ -69,8 +69,8 @@ navigator.mediaDevices.getUserMedia({ audio: true })
     .catch(function (err) {
         // エラーを処理する
         console.error(err);
-    });
-navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+    })
+    function (stream) {
     const audioContext = new AudioContext();
     const source = audioContext.createMediaStreamSource(stream);
     const analyser = audioContext.createAnalyser();
@@ -93,7 +93,7 @@ navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
     }
 
     update();
-});
+};
 
 function getRMS(dataArray) {
     let rms = 0;
