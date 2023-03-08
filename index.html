@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>マイクの音量を表示する</title>
+  <style>
+    #db-value {
+      font-size: 3em;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+  <div id="db-value"></div>
+  <script>
+    // getUserMediaを使用してマイクからの音声ストリームを取得する
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        // Web Audio APIを使用して音声ストリームを処理するオーディオコンテキストを作成する
+        const audioContext = new AudioContext();
+        const sourceNode = audioContext.createMediaStreamSource(stream);
+        const analyserNode = audioContext.createAnalyser();
+        sourceNode.connect(analyserNode);
+        
+        // 音声ストリームを処理するためのパラメータを設定する
+        analyserNode.fftSize = 2048;
+        const bufferLength = analyserNode.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        // アニメーションフレームを使って、定期的に音声ストリームからdbに変換された値を取得して、HTMLに表示する
+        function draw() {
+          requestAnimationFrame(draw);
+          
+          // dataArrayに現在の周波数スペクトルを格納する
+          analyserNode.getByteFrequencyData(dataArray);
+          
+          // dataArrayを処理してdbに変換する
+          const db = 20 * Math.log10(Math.abs(Math.max(...dataArray) / 255));
+          
+          // HTMLの適当な要素にdbの値を表示する
+          document.querySelector('#db-value').textContent = `${db.toFixed(2)} dB`;
+        }
+        
+        draw();
+      })
+      .catch(error => {
+        console.error('マイクからの音声ストリームを取得できませんでした。', error);
+      });
+  </script>
+</body>
+</html>
