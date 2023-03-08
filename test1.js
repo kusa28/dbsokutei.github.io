@@ -10,7 +10,7 @@ navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
     source.connect(analyser);
     analyser.connect(audioContext.destination);
 
-    analyser.fftSize = 2048;
+    analyser.fftSize = 1536;
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
